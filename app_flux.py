@@ -192,6 +192,8 @@ If you have any questions or feedbacks, feel free to open a discussion or contac
 """  # noqa E501
 
 
+fluxGenerator = FluxGenerator()
+
 def create_demo(args, model_name: str, device: str = "cuda" if torch.cuda.is_available() else "cpu",
                 offload: bool = False, aggressive_offload: bool = False):
     generator = FluxGenerator(model_name, device, offload, aggressive_offload, args)
@@ -229,67 +231,7 @@ def create_demo(args, model_name: str, device: str = "cuda" if torch.cuda.is_ava
                 intermediate_output = gr.Gallery(label='Output', elem_id="gallery", visible=args.dev)
                 gr.Markdown(_CITE_)
 
-        with gr.Row(), gr.Column():
-                gr.Markdown("## Examples")
-                example_inps = [
-                    [
-                        'a woman holding sign with glowing green text \"PuLID for FLUX\"',
-                        'example_inputs/liuyifei.png',
-                        4, 4, 2680261499100305976, 1
-                    ],
-                    [
-                        'portrait, side view',
-                        'example_inputs/liuyifei.png',
-                        4, 4, 1205240166692517553, 1
-                    ],
-                    [
-                        'white-haired woman with vr technology atmosphere, revolutionary exceptional magnum with remarkable details',  # noqa E501
-                        'example_inputs/liuyifei.png',
-                        4, 4, 6349424134217931066, 1
-                    ],
-                    [
-                        'a young child is eating Icecream',
-                        'example_inputs/liuyifei.png',
-                        4, 4, 10606046113565776207, 1
-                    ],
-                    [
-                        'a man is holding a sign with text \"PuLID for FLUX\", winter, snowing, top of the mountain',
-                        'example_inputs/pengwei.jpg',
-                        4, 4, 2410129802683836089, 1
-                    ],
-                    [
-                        'portrait, candle light',
-                        'example_inputs/pengwei.jpg',
-                        4, 4, 17522759474323955700, 1
-                    ],
-                    [
-                        'profile shot dark photo of a 25-year-old male with smoke escaping from his mouth, the backlit smoke gives the image an ephemeral quality, natural face, natural eyebrows, natural skin texture, award winning photo, highly detailed face, atmospheric lighting, film grain, monochrome',  # noqa E501
-                        'example_inputs/pengwei.jpg',
-                        4, 4, 17733156847328193625, 1
-                    ],
-                    [
-                        'American Comics, 1boy',
-                        'example_inputs/pengwei.jpg',
-                        1, 4, 13223174453874179686, 1
-                    ],
-                    [
-                        'portrait, pixar',
-                        'example_inputs/pengwei.jpg',
-                        1, 4, 9445036702517583939, 1
-                    ],
-                ]
-                gr.Examples(examples=example_inps, inputs=[prompt, id_image, start_step, guidance, seed, true_cfg],
-                            label='fake CFG')
-
-                example_inps = [
-                    [
-                        'portrait, made of ice sculpture',
-                        'example_inputs/lecun.jpg',
-                        1, 1, 3811899118709451814, 5
-                    ],
-                ]
-                gr.Examples(examples=example_inps, inputs=[prompt, id_image, start_step, guidance, seed, true_cfg],
-                            label='true CFG')
+   
 
         generate_btn.click(
             fn=generator.generate_image,
@@ -322,5 +264,16 @@ if __name__ == "__main__":
     if args.aggressive_offload:
         args.offload = True
 
-    demo = create_demo(args, args.name, args.device, args.offload, args.aggressive_offload)
-    demo.launch(server_name='0.0.0.0', server_port=args.port)
+    # demo = create_demo(args, args.name, args.device, args.offload, args.aggressive_offload)
+    # demo.launch(server_name='0.0.0.0', server_port=args.port)
+
+    import numpy as np
+
+    id_image = np.array(Image.open('../../person.jpg'))
+
+    fluxGenerator = FluxGenerator(offload=True,model_name="flux-dev",device="cuda",args=args)
+    output_image, seed_output, intermediate_output = fluxGenerator.generate_image(id_image=id_image,width=896,height=1152,num_steps=20,start_step=0,id_weight=1,
+                                             prompt="portrait, color, cinematic",guidance=4,seed=-1,
+                                             neg_prompt="bad quality, worst quality, text, signature, watermark, extra limbs",max_sequence_length=128,true_cfg=1,timestep_to_start_cfg=1)
+    
+    output_image.save('./output_image.jpg')
