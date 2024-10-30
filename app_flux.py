@@ -4,6 +4,11 @@ import gradio as gr
 import torch
 from einops import rearrange
 from PIL import Image
+from io import BytesIO
+import numpy as np
+import requests
+
+
 
 from flux.sampling import denoise, get_noise, get_schedule, prepare, unpack
 from flux.util import (
@@ -266,12 +271,18 @@ if __name__ == "__main__":
     # demo = create_demo(args, args.name, args.device, args.offload, args.aggressive_offload)
     # demo.launch(server_name='0.0.0.0', server_port=args.port)
 
-    import numpy as np
+    image_url = 'https://as1.ftcdn.net/v2/jpg/02/22/85/16/1000_F_222851624_jfoMGbJxwRi5AWGdPgXKSABMnzCQo9RN.jpg'
+    
+    response = requests.get(image_url)
+    response.raise_for_status()  # Raise an error for bad responses
 
-    id_image = np.array(Image.open('./person.jpg'))
+    image = Image.open(BytesIO(response.content))
+    image_array = np.array(image)  # Convert to NumPy array
+
+    # id_image = np.array(Image.open('./person.jpg'))
 
     fluxGenerator = FluxGenerator(offload=args.offload,model_name="flux-dev",device="cuda",args=args,aggressive_offload=args.aggressive_offload)
-    output_image, seed_output, intermediate_output = fluxGenerator.generate_image(id_image=id_image,width=896,height=1152,num_steps=20,start_step=0,id_weight=1,
+    output_image, seed_output, intermediate_output = fluxGenerator.generate_image(id_image=image_array,width=896,height=1152,num_steps=20,start_step=0,id_weight=1,
                                              prompt="portrait, color, cinematic",guidance=4,seed=-1,
                                              neg_prompt="bad quality, worst quality, text, signature, watermark, extra limbs",max_sequence_length=128,true_cfg=1,timestep_to_start_cfg=1)
     
