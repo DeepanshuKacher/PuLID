@@ -192,7 +192,6 @@ If you have any questions or feedbacks, feel free to open a discussion or contac
 """  # noqa E501
 
 
-fluxGenerator = FluxGenerator()
 
 def create_demo(args, model_name: str, device: str = "cuda" if torch.cuda.is_available() else "cpu",
                 offload: bool = False, aggressive_offload: bool = False):
