@@ -268,7 +268,7 @@ if __name__ == "__main__":
 
     import numpy as np
 
-    id_image = np.array(Image.open('../../person.jpg'))
+    id_image = np.array(Image.open('./person.jpg'))
 
     fluxGenerator = FluxGenerator(offload=args.offload,model_name="flux-dev",device="cuda",args=args,aggressive_offload=args.aggressive_offload)
     output_image, seed_output, intermediate_output = fluxGenerator.generate_image(id_image=id_image,width=896,height=1152,num_steps=20,start_step=0,id_weight=1,
