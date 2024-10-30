@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
     id_image = np.array(Image.open('../../person.jpg'))
 
-    fluxGenerator = FluxGenerator(offload=args.offload,model_name="flux-dev",device="cuda",args=args)
+    fluxGenerator = FluxGenerator(offload=args.offload,model_name="flux-dev",device="cuda",args=args,aggressive_offload=args.aggressive_offload)
     output_image, seed_output, intermediate_output = fluxGenerator.generate_image(id_image=id_image,width=896,height=1152,num_steps=20,start_step=0,id_weight=1,
                                              prompt="portrait, color, cinematic",guidance=4,seed=-1,
                                              neg_prompt="bad quality, worst quality, text, signature, watermark, extra limbs",max_sequence_length=128,true_cfg=1,timestep_to_start_cfg=1)
